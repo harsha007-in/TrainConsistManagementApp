@@ -1,42 +1,58 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TrainConsistManagementApp {
 
-    // Goods Bogie model
-    static class GoodsBogie {
+    static class Bogie {
         String type;
-        String cargo;
+        int capacity;
 
-        GoodsBogie(String type, String cargo) {
+        Bogie(String type, int capacity) {
             this.type = type;
-            this.cargo = cargo;
+            this.capacity = capacity;
         }
     }
 
     public static void main(String[] args) {
 
         System.out.println("==============================================");
-        System.out.println("UC12 - Safety Compliance Check for Goods Bogies");
+        System.out.println("UC13 - Performance Comparison (Loops vs Streams)");
         System.out.println("==============================================");
 
-        // Create goods bogie list
-        List<GoodsBogie> goodsBogies = new ArrayList<>();
+        // Create large dataset
+        List<Bogie> bogies = new ArrayList<>();
+        for (int i = 1; i <= 100000; i++) {
+            bogies.add(new Bogie("Sleeper", i % 100));
+        }
 
-        goodsBogies.add(new GoodsBogie("Rectangular", "Coal"));
-        goodsBogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
-        goodsBogies.add(new GoodsBogie("Rectangular", "Steel"));
+        // 🔹 Loop-based filtering
+        long startLoop = System.nanoTime();
 
-        // Safety validation using allMatch()
-        boolean isSafe = goodsBogies.stream()
-                .allMatch(b ->
-                        !b.type.equals("Cylindrical") || b.cargo.equals("Petroleum")
-                );
+        List<Bogie> loopResult = new ArrayList<>();
+        for (Bogie b : bogies) {
+            if (b.capacity > 50) {
+                loopResult.add(b);
+            }
+        }
 
-        // Display result
-        System.out.println("\nSafety Check Result:");
-        System.out.println("Is Train Safe? : " + isSafe);
+        long endLoop = System.nanoTime();
+        long loopTime = endLoop - startLoop;
 
-        System.out.println("\nUC12 safety validation completed...");
+        // 🔹 Stream-based filtering
+        long startStream = System.nanoTime();
+
+        List<Bogie> streamResult = bogies.stream()
+                .filter(b -> b.capacity > 50)
+                .collect(Collectors.toList());
+
+        long endStream = System.nanoTime();
+        long streamTime = endStream - startStream;
+
+        // Display results
+        System.out.println("\nLoop Execution Time (ns): " + loopTime);
+        System.out.println("Stream Execution Time (ns): " + streamTime);
+
+        System.out.println("\nUC13 performance comparison completed...");
     }
 }
